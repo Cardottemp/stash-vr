@@ -61,14 +61,19 @@ func GetTranscodingStreams(sp *gql.SceneParts) []Stream {
 
 		container := parseContainerFromLabel(label)
 		isDash := mimeType == "application/dash+xml" || strings.Contains(strings.ToUpper(label), "DASH")
+		isMP4 := strings.Contains(strings.ToUpper(label), "MP4")
 
-		if !isDash {
+		if !isDash && !isMP4 {
 			continue
 		}
 
-		// If matched by mime but not label regex, set container to DASH
+		// If matched by characteristics but not label regex, set container
 		if container == "" {
-			container = "DASH"
+			if isDash {
+				container = "DASH"
+			} else if isMP4 {
+				container = "MP4"
+			}
 		}
 
 		sourceLabel := fmt.Sprintf("%dp", resolution)
